@@ -36,6 +36,11 @@
           <button id="quizToggleBtn" class="ghost-btn" type="button">🎯 开始练习</button>
         </div>
 
+        <div class="view-row">
+          <button id="groupViewBtn" class="ghost-btn is-active" type="button">分类卡片</button>
+          <button id="listViewBtn" class="ghost-btn" type="button">完整列表</button>
+        </div>
+
         <p id="tip" class="tip">
           音频目录建议：<code>./audio/ipa/uk/</code> 和 <code>./audio/ipa/us/</code>。若未找到，会自动尝试旧目录 <code>./audio/ipa/</code>，最后用语音合成兜底。
         </p>
@@ -56,6 +61,11 @@
       </section>
 
       <section id="content"></section>
+
+      <section id="listOverview" class="panel hidden">
+        <h2 class="group-title">完整音标总览</h2>
+        <div id="listContainer" class="ipa-list"></div>
+      </section>
     </main>
 
     <template id="groupTemplate">

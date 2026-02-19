@@ -88,6 +88,10 @@ const searchInput = document.getElementById("searchInput");
 const replayBtn = document.getElementById("replayBtn");
 const toggleThemeBtn = document.getElementById("toggleThemeBtn");
 const accentSelect = document.getElementById("accentSelect");
+const groupViewBtn = document.getElementById("groupViewBtn");
+const listViewBtn = document.getElementById("listViewBtn");
+const listOverview = document.getElementById("listOverview");
+const listContainer = document.getElementById("listContainer");
 
 const quizPanel = document.getElementById("quizPanel");
 const quizToggleBtn = document.getElementById("quizToggleBtn");
@@ -108,6 +112,7 @@ let quizAnswer = null;
 let quizAnswered = false;
 let quizTotal = 0;
 let quizScore = 0;
+let viewMode = "group";
 
 const audio = new Audio();
 audio.preload = "none";
@@ -212,6 +217,38 @@ function render() {
   });
 }
 
+function renderList() {
+  listContainer.innerHTML = "";
+
+  groups.forEach((group) => {
+    const visible = group.items.filter((x) => itemVisible(x, currentKeyword));
+    if (!visible.length) return;
+
+    const block = document.createElement("section");
+    block.className = "list-block";
+
+    const title = document.createElement("h3");
+    title.className = "list-title";
+    title.textContent = `${group.name}（${visible.length}）`;
+    block.appendChild(title);
+
+    const row = document.createElement("div");
+    row.className = "list-chips";
+
+    visible.forEach((item) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "ipa-chip";
+      chip.innerHTML = `<span class="sym">${item.symbol}</span><span class="ex">${item.example}</span>`;
+      chip.addEventListener("click", () => playItem(item));
+      row.appendChild(chip);
+    });
+
+    block.appendChild(row);
+    listContainer.appendChild(block);
+  });
+}
+
 function updateScore() {
   quizScoreEl.textContent = String(quizScore);
   quizTotalEl.textContent = String(quizTotal);
@@ -280,9 +317,19 @@ function stopQuiz() {
   quizPanel.classList.add("hidden");
 }
 
+function switchView(mode) {
+  viewMode = mode;
+  const showList = mode === "list";
+  contentEl.classList.toggle("hidden", showList);
+  listOverview.classList.toggle("hidden", !showList);
+  groupViewBtn.classList.toggle("is-active", !showList);
+  listViewBtn.classList.toggle("is-active", showList);
+}
+
 searchInput.addEventListener("input", (e) => {
   currentKeyword = e.target.value.trim();
   render();
+  renderList();
 });
 
 replayBtn.addEventListener("click", () => {
@@ -306,6 +353,9 @@ quizNextBtn.addEventListener("click", () => {
 });
 quizStopBtn.addEventListener("click", stopQuiz);
 
+groupViewBtn.addEventListener("click", () => switchView("group"));
+listViewBtn.addEventListener("click", () => switchView("list"));
+
 toggleThemeBtn.addEventListener("click", () => {
   const root = document.documentElement;
   const toDark = !root.classList.contains("dark");
@@ -323,4 +373,6 @@ toggleThemeBtn.addEventListener("click", () => {
   accentSelect.value = selectedAccent;
   updateScore();
   render();
+  renderList();
+  switchView("group");
 })();

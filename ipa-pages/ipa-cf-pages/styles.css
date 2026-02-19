@@ -69,6 +69,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 12px; }
   gap: 10px;
 }
 
+.view-row {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ghost-btn.is-active {
+  border-color: var(--accent);
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
 .search-wrap {
   display: flex;
   align-items: center;
@@ -222,6 +234,37 @@ code { background: color-mix(in srgb, var(--panel) 85%, var(--accent) 15%); padd
   font-size: 16px;
 }
 
+.ipa-list {
+  margin-top: 8px;
+}
+.list-block + .list-block {
+  margin-top: 12px;
+}
+.list-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: var(--sub);
+}
+.list-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+}
+.ipa-chip {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.ipa-chip .sym { font-size: 22px; font-weight: 700; }
+.ipa-chip .ex { font-size: 12px; color: var(--sub); margin-top: 2px; }
+
 .footer {
   color: var(--sub);
   text-align: center;
@@ -233,7 +276,8 @@ code { background: color-mix(in srgb, var(--panel) 85%, var(--accent) 15%); padd
   .topbar h1 { font-size: 18px; }
   .panel-row,
   .control-row,
-  .quiz-actions { grid-template-columns: 1fr; }
+  .quiz-actions,
+  .view-row { grid-template-columns: 1fr; }
   .primary-btn,
   .ghost-btn,
   .select-wrap { width: 100%; }
