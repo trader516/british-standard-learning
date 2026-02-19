@@ -1,0 +1,5 @@
+name = "british-standard-learning"
+compatibility_date = "2026-02-19"
+
+# Cloudflare Pages static output directory
+pages_build_output_dir = "tmp/ipa-cf-pages"
