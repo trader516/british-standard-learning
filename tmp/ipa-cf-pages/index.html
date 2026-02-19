@@ -10,7 +10,7 @@
     <header class="topbar">
       <div>
         <h1>英语音标学习（IPA）</h1>
-        <p class="subtitle">按分类整理 · 点击即可播放 · 移动端友好</p>
+        <p class="subtitle">按分类整理 · 点击播放 · 支持英音/美音 · 练习模式</p>
       </div>
       <button id="toggleThemeBtn" class="ghost-btn" type="button">🌙</button>
     </header>
@@ -24,9 +24,35 @@
           </label>
           <button id="replayBtn" class="primary-btn" type="button" disabled>重播上一个</button>
         </div>
+
+        <div class="control-row">
+          <label class="select-wrap" for="accentSelect">
+            <span>发音</span>
+            <select id="accentSelect">
+              <option value="uk">🇬🇧 英音（UK）</option>
+              <option value="us">🇺🇸 美音（US）</option>
+            </select>
+          </label>
+          <button id="quizToggleBtn" class="ghost-btn" type="button">🎯 开始练习</button>
+        </div>
+
         <p id="tip" class="tip">
-          默认优先播放 <code>./audio/ipa/</code> 目录中的音频；若找不到文件，会自动尝试浏览器语音合成兜底。
+          音频目录建议：<code>./audio/ipa/uk/</code> 和 <code>./audio/ipa/us/</code>。若未找到，会自动尝试旧目录 <code>./audio/ipa/</code>，最后用语音合成兜底。
         </p>
+      </section>
+
+      <section id="quizPanel" class="panel quiz-panel hidden" aria-live="polite">
+        <div class="quiz-head">
+          <h2>听音选音标</h2>
+          <div class="quiz-score">得分：<span id="quizScore">0</span> / <span id="quizTotal">0</span></div>
+        </div>
+        <div class="quiz-actions">
+          <button id="quizPlayBtn" class="primary-btn" type="button">🔊 播放题目</button>
+          <button id="quizNextBtn" class="ghost-btn" type="button">下一题</button>
+          <button id="quizStopBtn" class="ghost-btn" type="button">结束练习</button>
+        </div>
+        <div id="quizOptions" class="quiz-options"></div>
+        <p id="quizFeedback" class="quiz-feedback"></p>
       </section>
 
       <section id="content"></section>

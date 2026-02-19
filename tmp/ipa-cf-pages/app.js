@@ -79,48 +79,90 @@ const groups = [
   },
 ];
 
+const allItems = groups.flatMap((g) => g.items);
+
 const contentEl = document.getElementById("content");
 const groupTemplate = document.getElementById("groupTemplate");
 const cardTemplate = document.getElementById("cardTemplate");
 const searchInput = document.getElementById("searchInput");
 const replayBtn = document.getElementById("replayBtn");
 const toggleThemeBtn = document.getElementById("toggleThemeBtn");
+const accentSelect = document.getElementById("accentSelect");
+
+const quizPanel = document.getElementById("quizPanel");
+const quizToggleBtn = document.getElementById("quizToggleBtn");
+const quizPlayBtn = document.getElementById("quizPlayBtn");
+const quizNextBtn = document.getElementById("quizNextBtn");
+const quizStopBtn = document.getElementById("quizStopBtn");
+const quizOptions = document.getElementById("quizOptions");
+const quizFeedback = document.getElementById("quizFeedback");
+const quizScoreEl = document.getElementById("quizScore");
+const quizTotalEl = document.getElementById("quizTotal");
 
 let currentKeyword = "";
 let lastPlayed = null;
+let selectedAccent = localStorage.getItem("ipa-accent") || "uk";
+
+let quizActive = false;
+let quizAnswer = null;
+let quizAnswered = false;
+let quizTotal = 0;
+let quizScore = 0;
 
 const audio = new Audio();
 audio.preload = "none";
 
-function getAudioUrl(item) {
-  return `./audio/ipa/${item.id}.mp3`;
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function getAudioCandidates(item) {
+  return [
+    `./audio/ipa/${selectedAccent}/${item.id}.mp3`,
+    `./audio/ipa/${item.id}.mp3`,
+  ];
 }
 
 function speakFallback(item) {
   if (!("speechSynthesis" in window)) return;
   const utter = new SpeechSynthesisUtterance(item.example || item.symbol);
-  utter.lang = "en-US";
+  utter.lang = selectedAccent === "us" ? "en-US" : "en-GB";
   utter.rate = 0.8;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utter);
 }
 
-function playItem(item) {
-  const url = getAudioUrl(item);
-  lastPlayed = item;
-  replayBtn.disabled = false;
-  audio.src = url;
-  audio.currentTime = 0;
-  audio
-    .play()
-    .catch(() => {
-      speakFallback(item);
-    });
+function playByCandidates(candidates, onFail) {
+  let idx = 0;
+
+  function tryNext() {
+    if (idx >= candidates.length) {
+      onFail?.();
+      return;
+    }
+    const src = candidates[idx++];
+    audio.src = src;
+    audio.currentTime = 0;
+    audio.play().catch(tryNext);
+  }
+
+  audio.onerror = () => {
+    tryNext();
+  };
+
+  tryNext();
 }
 
-audio.onerror = () => {
-  if (lastPlayed) speakFallback(lastPlayed);
-};
+function playItem(item) {
+  lastPlayed = item;
+  replayBtn.disabled = false;
+  playByCandidates(getAudioCandidates(item), () => speakFallback(item));
+}
 
 function itemVisible(item, keyword) {
   if (!keyword) return true;
@@ -170,6 +212,74 @@ function render() {
   });
 }
 
+function updateScore() {
+  quizScoreEl.textContent = String(quizScore);
+  quizTotalEl.textContent = String(quizTotal);
+}
+
+function setFeedback(text, type = "") {
+  quizFeedback.textContent = text;
+  quizFeedback.classList.remove("ok", "bad");
+  if (type) quizFeedback.classList.add(type);
+}
+
+function newQuizQuestion() {
+  quizAnswered = false;
+  setFeedback("", "");
+  quizOptions.innerHTML = "";
+
+  quizAnswer = allItems[Math.floor(Math.random() * allItems.length)];
+
+  const wrongPool = shuffle(allItems.filter((x) => x.id !== quizAnswer.id)).slice(0, 3);
+  const options = shuffle([quizAnswer, ...wrongPool]);
+
+  options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "quiz-option";
+    btn.textContent = opt.symbol;
+    btn.addEventListener("click", () => {
+      if (quizAnswered) return;
+      quizAnswered = true;
+      quizTotal += 1;
+
+      const isRight = opt.id === quizAnswer.id;
+      if (isRight) {
+        quizScore += 1;
+        btn.classList.add("correct");
+        setFeedback(`✅ 正确！例词：${quizAnswer.example}`, "ok");
+      } else {
+        btn.classList.add("wrong");
+        setFeedback(`❌ 答错了，正确是 ${quizAnswer.symbol}（${quizAnswer.example}）`, "bad");
+      }
+
+      [...quizOptions.querySelectorAll(".quiz-option")].forEach((el) => {
+        const symbol = el.textContent;
+        if (symbol === quizAnswer.symbol) el.classList.add("correct");
+      });
+
+      updateScore();
+    });
+
+    quizOptions.appendChild(btn);
+  });
+
+  playItem(quizAnswer);
+}
+
+function startQuiz() {
+  quizActive = true;
+  quizToggleBtn.textContent = "🎯 练习中";
+  quizPanel.classList.remove("hidden");
+  newQuizQuestion();
+}
+
+function stopQuiz() {
+  quizActive = false;
+  quizToggleBtn.textContent = "🎯 开始练习";
+  quizPanel.classList.add("hidden");
+}
+
 searchInput.addEventListener("input", (e) => {
   currentKeyword = e.target.value.trim();
   render();
@@ -179,6 +289,23 @@ replayBtn.addEventListener("click", () => {
   if (lastPlayed) playItem(lastPlayed);
 });
 
+accentSelect.addEventListener("change", () => {
+  selectedAccent = accentSelect.value;
+  localStorage.setItem("ipa-accent", selectedAccent);
+  if (lastPlayed) playItem(lastPlayed);
+});
+
+quizToggleBtn.addEventListener("click", () => {
+  if (!quizActive) startQuiz();
+});
+quizPlayBtn.addEventListener("click", () => {
+  if (quizAnswer) playItem(quizAnswer);
+});
+quizNextBtn.addEventListener("click", () => {
+  if (quizActive) newQuizQuestion();
+});
+quizStopBtn.addEventListener("click", stopQuiz);
+
 toggleThemeBtn.addEventListener("click", () => {
   const root = document.documentElement;
   const toDark = !root.classList.contains("dark");
@@ -187,11 +314,13 @@ toggleThemeBtn.addEventListener("click", () => {
   toggleThemeBtn.textContent = toDark ? "☀️" : "🌙";
 });
 
-(function initTheme() {
-  const saved = localStorage.getItem("ipa-theme");
-  const dark = saved === "dark";
+(function init() {
+  const savedTheme = localStorage.getItem("ipa-theme");
+  const dark = savedTheme === "dark";
   document.documentElement.classList.toggle("dark", dark);
   toggleThemeBtn.textContent = dark ? "☀️" : "🌙";
-})();
 
-render();
+  accentSelect.value = selectedAccent;
+  updateScore();
+  render();
+})();

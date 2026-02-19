@@ -2,7 +2,9 @@
 
 这是一个纯静态页面：
 - 音标按分类展示（元音/双元音/辅音）
-- 点击卡片即可播放
+- 点击卡片播放音频
+- **英音 / 美音切换**（UK / US）
+- **练习模式：听音选音标**
 - 支持移动端（大按钮、单列布局）
 - 支持搜索、重播、深色模式
 
@@ -15,66 +17,77 @@ ipa-cf-pages/
 ├── app.js
 └── audio/
     └── ipa/
-        ├── i-long.mp3
-        ├── i-short.mp3
-        ├── ...
+        ├── uk/
+        │   ├── i-long.mp3
+        │   └── ...
+        ├── us/
+        │   ├── i-long.mp3
+        │   └── ...
+        └── (可选旧目录兼容)
+            ├── i-long.mp3
+            └── ...
 ```
 
-> 音频默认从 `./audio/ipa/{id}.mp3` 读取。
+## 音频命名规则
 
-## 你需要上传的音频文件名
+页面会按顺序尝试：
+1. `./audio/ipa/{accent}/{id}.mp3`（推荐）
+2. `./audio/ipa/{id}.mp3`（兼容旧结构）
+3. 浏览器语音合成兜底
 
-下面这些文件名与页面里的音标一一对应：
+其中 `{accent}` 为 `uk` 或 `us`。
+
+## 你需要准备的 id 列表
 
 ```txt
-i-long.mp3
-i-short.mp3
-e.mp3
-ae.mp3
-a-long.mp3
-o-short.mp3
-o-long.mp3
-u-short.mp3
-u-long.mp3
-v.mp3
-er-long.mp3
-schwa.mp3
-ei.mp3
-ai.mp3
-oi.mp3
-au.mp3
-eu.mp3
-ie.mp3
-ea.mp3
-ue.mp3
-p.mp3
-b.mp3
-t.mp3
-d.mp3
-k.mp3
-g.mp3
-f.mp3
-v-con.mp3
-th-voiceless.mp3
-th-voiced.mp3
-s.mp3
-z.mp3
-sh.mp3
-zh.mp3
-h.mp3
-ch.mp3
-j.mp3
-tr.mp3
-dr.mp3
-ts.mp3
-dz.mp3
-m.mp3
-n.mp3
-ng.mp3
-l.mp3
-r.mp3
-w.mp3
-y.mp3
+i-long
+i-short
+e
+ae
+a-long
+o-short
+o-long
+u-short
+u-long
+v
+er-long
+schwa
+ei
+ai
+oi
+au
+eu
+ie
+ea
+ue
+p
+b
+t
+d
+k
+g
+f
+v-con
+th-voiceless
+th-voiced
+s
+z
+sh
+zh
+h
+ch
+j
+tr
+dr
+ts
+dz
+m
+n
+ng
+l
+r
+w
+y
 ```
 
 ## Cloudflare Pages 部署
@@ -85,6 +98,5 @@ y.mp3
    - Build command: 留空（静态）
    - Output directory: 项目根目录（或 `english-ipa` 对应目录）
 
-## 兜底说明
-
-如果某个 mp3 不存在，页面会尝试用浏览器语音合成播放例词（仅兜底，不如录音标准）。
+---
+如果你后面要加“错题本”“发音评分（Web Speech API）”“按难度抽题”，我也可以继续给你扩展。
