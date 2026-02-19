@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>英语音标学习页（IPA）</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>英语音标学习（IPA）</h1>
+        <p class="subtitle">按分类整理 · 点击即可播放 · 移动端友好</p>
+      </div>
+      <button id="toggleThemeBtn" class="ghost-btn" type="button">🌙</button>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="panel-row">
+          <label class="search-wrap" for="searchInput">
+            <span>🔎</span>
+            <input id="searchInput" type="search" placeholder="搜索音标 / 单词（如 iː, ship）" />
+          </label>
+          <button id="replayBtn" class="primary-btn" type="button" disabled>重播上一个</button>
+        </div>
+        <p id="tip" class="tip">
+          默认优先播放 <code>./audio/ipa/</code> 目录中的音频；若找不到文件，会自动尝试浏览器语音合成兜底。
+        </p>
+      </section>
+
+      <section id="content"></section>
+    </main>
+
+    <template id="groupTemplate">
+      <section class="group">
+        <div class="group-title-wrap">
+          <h2 class="group-title"></h2>
+          <span class="group-count"></span>
+        </div>
+        <div class="card-grid"></div>
+      </section>
+    </template>
+
+    <template id="cardTemplate">
+      <article class="ipa-card" role="button" tabindex="0">
+        <div class="ipa-symbol"></div>
+        <div class="ipa-meta">
+          <div class="ipa-example"></div>
+          <div class="ipa-note"></div>
+        </div>
+        <button class="play-btn" type="button" aria-label="播放音频">▶</button>
+      </article>
+    </template>
+
+    <footer class="footer">
+      <p>可直接上传到 Cloudflare Pages（静态页面）。</p>
+    </footer>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
