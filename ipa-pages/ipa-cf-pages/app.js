@@ -79,6 +79,57 @@ const groups = [
   },
 ];
 
+const wordExamplesMap = {
+  "i-long": ["see", "green", "teacher"],
+  "i-short": ["sit", "fish", "little"],
+  e: ["bed", "pen", "desk"],
+  ae: ["cat", "bag", "apple"],
+  "a-long": ["car", "father", "start"],
+  "o-short": ["hot", "dog", "box"],
+  "o-long": ["law", "talk", "small"],
+  "u-short": ["book", "good", "look"],
+  "u-long": ["blue", "food", "school"],
+  v: ["cup", "bus", "love"],
+  "er-long": ["bird", "work", "word"],
+  schwa: ["about", "sofa", "banana"],
+  ei: ["day", "name", "rain"],
+  ai: ["time", "night", "bike"],
+  oi: ["boy", "toy", "voice"],
+  au: ["now", "house", "mouth"],
+  eu: ["go", "home", "boat"],
+  ie: ["near", "ear", "idea"],
+  ea: ["hair", "care", "bear"],
+  ue: ["tour", "poor", "sure"],
+  p: ["pen", "apple", "map"],
+  b: ["bag", "baby", "cab"],
+  t: ["tea", "water", "cat"],
+  d: ["dog", "ladder", "red"],
+  k: ["cat", "kite", "back"],
+  g: ["go", "green", "bag"],
+  f: ["fine", "coffee", "leaf"],
+  "v-con": ["very", "movie", "love"],
+  "th-voiceless": ["think", "bath", "teeth"],
+  "th-voiced": ["this", "mother", "breathe"],
+  s: ["see", "city", "bus"],
+  z: ["zoo", "music", "nose"],
+  sh: ["she", "ship", "wash"],
+  zh: ["vision", "measure", "garage"],
+  h: ["hat", "home", "behind"],
+  ch: ["chair", "teacher", "watch"],
+  j: ["job", "orange", "bridge"],
+  tr: ["tree", "train", "try"],
+  dr: ["dream", "drink", "drive"],
+  ts: ["cats", "hats", "writes"],
+  dz: ["beds", "cards", "hands"],
+  m: ["man", "milk", "home"],
+  n: ["no", "name", "sun"],
+  ng: ["sing", "long", "ring"],
+  l: ["light", "blue", "ball"],
+  r: ["red", "green", "car"],
+  w: ["we", "water", "window"],
+  y: ["yes", "yellow", "you"],
+};
+
 const allItems = groups.flatMap((g) => g.items);
 
 const contentEl = document.getElementById("content");
@@ -163,10 +214,28 @@ function playByCandidates(candidates, onFail) {
   tryNext();
 }
 
+function playWord(word) {
+  const utter = new SpeechSynthesisUtterance(word);
+  utter.lang = selectedAccent === "us" ? "en-US" : "en-GB";
+  utter.rate = 0.78;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function getWords(item) {
+  return wordExamplesMap[item.id] || [item.example];
+}
+
 function playItem(item) {
   lastPlayed = item;
   replayBtn.disabled = false;
-  playByCandidates(getAudioCandidates(item), () => speakFallback(item));
+  playByCandidates(
+    [
+      `./audio/ipa-symbol/${selectedAccent}/${item.id}.mp3`,
+      ...getAudioCandidates(item),
+    ],
+    () => speakFallback(item)
+  );
 }
 
 function itemVisible(item, keyword) {
@@ -195,8 +264,25 @@ function render() {
       const cardNode = cardTemplate.content.cloneNode(true);
       const card = cardNode.querySelector(".ipa-card");
       card.querySelector(".ipa-symbol").textContent = item.symbol;
-      card.querySelector(".ipa-example").textContent = `例词：${item.example}`;
+      const words = getWords(item);
+      card.querySelector(".ipa-example").textContent = `例词：${words.join(" / ")}`;
       card.querySelector(".ipa-note").textContent = item.note;
+
+      const meta = card.querySelector(".ipa-meta");
+      const wordRow = document.createElement("div");
+      wordRow.className = "word-row";
+      words.forEach((w) => {
+        const wbtn = document.createElement("button");
+        wbtn.type = "button";
+        wbtn.className = "word-btn";
+        wbtn.textContent = `🔊 ${w}`;
+        wbtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          playWord(w);
+        });
+        wordRow.appendChild(wbtn);
+      });
+      meta.appendChild(wordRow);
 
       card.addEventListener("click", () => playItem(item));
       card.addEventListener("keydown", (e) => {
@@ -236,10 +322,11 @@ function renderList() {
     row.className = "list-chips";
 
     visible.forEach((item) => {
+      const words = getWords(item);
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "ipa-chip";
-      chip.innerHTML = `<span class="sym">${item.symbol}</span><span class="ex">${item.example}</span>`;
+      chip.innerHTML = `<span class="sym">${item.symbol}</span><span class="ex">${words[0]}</span>`;
       chip.addEventListener("click", () => playItem(item));
       row.appendChild(chip);
     });

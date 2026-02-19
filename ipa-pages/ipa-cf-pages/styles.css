@@ -226,6 +226,21 @@ code { background: color-mix(in srgb, var(--panel) 85%, var(--accent) 15%); padd
 }
 .ipa-example { font-size: 14px; }
 .ipa-note { margin-top: 2px; color: var(--sub); font-size: 12px; }
+.word-row {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.word-btn {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
 .play-btn {
   background: color-mix(in srgb, var(--accent) 18%, var(--panel));
   color: var(--accent-2);
