@@ -38,6 +38,8 @@ import urllib.request
 from typing import Dict, Any
 
 BASE_URL = "https://psp.hikparking.com"
+DEFAULT_ACCOUNT = "fxqg12345"
+DEFAULT_PASSWORD = "Fxqg8424"
 
 
 def _random_ns(length: int = 32) -> str:
@@ -155,8 +157,8 @@ def give_coupon(token: str, record_id: int, plate_no: str, send_count: int, rema
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="HikParking login + coupon packet example")
-    parser.add_argument("--account", required=True, help="login account")
-    parser.add_argument("--password", required=True, help="login password")
+    parser.add_argument("--account", default=DEFAULT_ACCOUNT, help="login account")
+    parser.add_argument("--password", default=DEFAULT_PASSWORD, help="login password")
     parser.add_argument("--plate", help="plate number, e.g. 浙AAS2337")
     parser.add_argument("--count", type=int, default=4, help="coupon count to send")
     parser.add_argument("--record-id", type=int, default=771849, help="coupon recordId for driverCoupon")
